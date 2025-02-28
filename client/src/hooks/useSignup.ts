@@ -21,7 +21,6 @@ export const useSignup = () => {
   const onSubmit = async (data: SignupFormData):Promise<SubmitResponse> => {
     try {
       const user = await signupUser(data);
-      console.log(user)
       return { success: true, message: user?.message }; 
     } catch (error:unknown) {
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";

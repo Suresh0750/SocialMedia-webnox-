@@ -9,6 +9,9 @@ import { useRouter } from "next/navigation"
 import Navbar from "@/components/navbar"
 import { usePost } from "@/hooks/usePost"
 import {toast,Toaster} from "react-hot-toast"
+import { useDispatch } from "react-redux"
+import { resetPosts } from "@/redux/slices/postSlice"
+
 
 const postSchema = z.object({
   content: z.string().min(1, "Post content is required").max(500, "Post content cannot exceed 500 characters"),
@@ -19,7 +22,7 @@ type PostFormData = z.infer<typeof postSchema>
 export default function AddPost() {
 
   const Router = useRouter()
-
+  const dispatch = useDispatch()
   const {
     form: { handleSubmit, errors, isSubmitting ,control,Controller},
     actions: {onSubmit, handleImageChange ,imagePreview,setImagePreview },
@@ -36,6 +39,7 @@ export default function AddPost() {
     const result = await onSubmit(data)
     if(result?.success){
       toast.success(result?.message)
+      dispatch(resetPosts()) 
       setTimeout(()=>{
         Router.push('/feed')
       },3000)

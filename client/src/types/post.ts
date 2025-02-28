@@ -39,9 +39,12 @@ export interface IUser {
 }
 
 export interface IComment {
+  _id?: string;
   userId: string;
   comment: string;
   postId: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface IPost {

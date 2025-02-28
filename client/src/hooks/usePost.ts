@@ -1,7 +1,6 @@
 "use client"
 import { PostFormData, postFormSchema } from "@/schemas/postSchema"
 import { createPost } from "@/service/postAPI"
-import { Posts } from "@/types/post"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useState, useEffect } from "react"
 import { useForm,Controller } from "react-hook-form"
@@ -50,6 +49,7 @@ const [imagePreview, setImagePreview] = useState<string | null>(null)
       })
 
       const result = await createPost(formData)
+    
       return result
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";

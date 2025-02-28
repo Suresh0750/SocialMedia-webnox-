@@ -23,11 +23,10 @@ export default function LoginPage() {
 
       const handleLogin = async (data:LoginFormData) => {
         const result :any = await onSubmit(data);
-        console.log("result",result)
         if(result.success){
           toast.success(result?.message as string)
           setTimeout(()=>{
-            Router.replace('/add-post')
+            Router.replace('/feed')
           },3000)
         }else{
           toast.error(result?.message as string)

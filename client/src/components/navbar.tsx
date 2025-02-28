@@ -17,19 +17,39 @@ import {
 } from "@mui/material"
 import { Home as HomeIcon, Notifications as NotificationsIcon } from "@mui/icons-material"
 import { useRouter } from "next/navigation"
+import { logoutUser } from "@/service/usersAPI"
+import {toast,Toaster} from "react-hot-toast"
+import { useDispatch } from "react-redux"
+import { resetPosts } from "@/redux/slices/postSlice"
 
 export default function Navbar() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const router = useRouter()
   const theme = useTheme()
+  const dispatch = useDispatch()
 
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
   }
 
-  const handleMenuClose = () => {
-    setAnchorEl(null)
-  }
+  const handleMenuClose = async () => {
+    setAnchorEl(null);
+    
+    try {
+      const res: any = await logoutUser(); 
+      if (res?.success) {
+        localStorage.removeItem("user"); 
+        toast.success("Logged out successfully!");
+        dispatch(resetPosts())
+        setTimeout(()=>{
+          router.replace('/login')
+        },3000)
+      }
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "Something went wrong, try again.");
+    }
+  };
+  
 
   const navigateToProfile = () => {
     handleMenuClose()
@@ -77,11 +97,11 @@ export default function Navbar() {
             anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
           >
             <MenuItem onClick={navigateToProfile}>Profile</MenuItem>
-            <MenuItem onClick={handleMenuClose}>Settings</MenuItem>
             <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
           </Menu>
         </Toolbar>
       </Container>
+      <Toaster position="top-center" />
     </AppBar>
   )
 }

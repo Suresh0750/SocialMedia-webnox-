@@ -26,7 +26,7 @@ import {
   Send as SendIcon,
 } from "@mui/icons-material";
 import { formatDistanceToNow } from "date-fns";
-import type { IPost } from "@/types/post";
+import type { IComment, IPost } from "@/types/post";
 import Image from "next/image";
 
 // Define props and ref type
@@ -105,7 +105,6 @@ const PostCard = forwardRef<HTMLDivElement, PostCardProps>(({ post, onLike, onAd
         </Box>
 
         <Box sx={{ flexGrow: 1 }} />
-
         {post.comments.length > 0 && (
           <Button size="small" onClick={handleExpandClick} sx={{ textTransform: "none" }}>
             {expanded ? "Hide comments" : "See all comments"}
@@ -136,26 +135,26 @@ const PostCard = forwardRef<HTMLDivElement, PostCardProps>(({ post, onLike, onAd
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <Divider />
         <List sx={{ py: 0 }}>
-          {post.comments.map((comment: any) => (
-            <ListItem key={comment.id} alignItems="flex-start" sx={{ py: 1 }}>
+          {post.comments.map((comment: IComment) => (
+            <ListItem key={comment._id} alignItems="flex-start" sx={{ py: 1 }}>
               <ListItemAvatar>
-                <Avatar src={comment.userAvatar} alt={comment.userName}>
-                  {comment.userName.charAt(0)}
+                <Avatar src={post.userId.avatar} alt={post.userId.username}>
+                  {post.userId.username.charAt(0)}
                 </Avatar>
               </ListItemAvatar>
               <ListItemText
                 primary={
                   <Typography variant="subtitle2" component="span">
-                    {comment.userName}
+                    {post.userId.username}
                   </Typography>
                 }
                 secondary={
                   <>
                     <Typography variant="body2" component="span" color="text.primary">
-                      {comment.content}
+                      {comment?.comment}
                     </Typography>
                     <Typography variant="caption" component="div" color="text.secondary" sx={{ mt: 0.5 }}>
-                      {formatDistanceToNow(new Date(comment.timestamp), { addSuffix: true })}
+                      {comment?.createdAt ? formatDistanceToNow(new Date(comment?.createdAt), { addSuffix: true }) : ''}
                     </Typography>
                   </>
                 }

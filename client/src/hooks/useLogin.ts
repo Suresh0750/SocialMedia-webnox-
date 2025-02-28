@@ -25,7 +25,6 @@ export const useLogin = () => {
         return { success: true, message:user?.message }; 
       }
     } catch (error:unknown) {
-      console.log('eeror',error)
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
       setError(errorMessage);
       return { success: false, message: errorMessage };

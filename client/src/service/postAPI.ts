@@ -1,4 +1,4 @@
-import { Posts } from "@/types/post";
+import { IComment, Posts } from "@/types/post";
 import axios from "axios";
 
 // * Create an Axios instance for API calls
@@ -44,6 +44,26 @@ export const fetchPost = async(page:number,limit:number)=>{
         limit,
       },
     })
+    return response.data
+  } catch (error) {
+    throw new Error(handleApiError(error))
+  }
+}
+
+export const postComment = async(data:IComment)=>{
+  try{
+    const response = await axiosInstance1.post('/api/post/postComment',data)
+    return response.data
+
+  }catch(error){
+    throw new Error(handleApiError(error))
+  }
+}
+
+
+export const toggleLike = async(postId:string,userId:string)=>{
+  try {
+    const response = await axiosInstance1.patch('/api/post/toggleLike',{postId,userId})
     return response.data
   } catch (error) {
     throw new Error(handleApiError(error))

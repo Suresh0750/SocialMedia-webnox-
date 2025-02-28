@@ -20,7 +20,6 @@ export default function SignupPage() {
   const Router = useRouter()
   const handleSignup = async(data:SignupFormData)=>{
     const result :SubmitResponse = await onSubmit(data);
-    console.log(result,'result')
     if (result.success) {
       toast.success(result.message as string); 
       setTimeout(()=>{
