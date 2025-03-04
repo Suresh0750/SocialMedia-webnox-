@@ -56,7 +56,7 @@ async function decodeToken(token: string) {
 
     return decodedToken;
   } catch (error) {
-    console.error('JWT Verification Error:', error);
+
     return null;
   }
 }

@@ -1,10 +1,12 @@
-import { IComment, Posts } from "@/types/post";
+import { IComment } from "@/types/post";
 import axios from "axios";
+import { SERVER_URL } from "@/config/constants";
+
 
 // * Create an Axios instance for API calls
 
 export const axiosInstance = axios.create({
-    baseURL: "http://localhost:3001",
+    baseURL: SERVER_URL,
     headers: {
         "Content-Type": "application/json",
     },
@@ -12,7 +14,7 @@ export const axiosInstance = axios.create({
 });
 
 export const axiosInstance1 = axios.create({
-  baseURL: "http://localhost:3001",
+  baseURL: SERVER_URL,
   withCredentials: true,
 });
 // * Error handler function

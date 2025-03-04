@@ -12,33 +12,63 @@ export const useFeed = () => {
 
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
+  const hasMore = useRef(true);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const lastPostRef = useRef<HTMLDivElement | null>(null);
-  const userId = JSON.parse(localStorage.getItem("user") || "{}")?._id || null;
+  const [userId,setUserId] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState<string>("newest");
   const limit = 5;
 
-  // ** Fetch Posts with Pagination **
+
+  useEffect(()=>{
+    let user = localStorage.getItem('user')
+    if(user){
+      setUserId(JSON.parse(user)?._id)
+    }else{
+      setUserId(null)
+    }
+  },[])
+
+  // const handleFetchPost = useCallback(async () => {
+  //   if (!hasMore.current || loading) return;
+  
+  //   setLoading(true);
+  //   try {
+  //     const res = await fetchPost(page, limit);
+  //     if (res?.result?.length) {
+  //       dispatch(setPosts([...posts, ...res.result]));
+  //     }
+  //     if (res?.result?.length < limit) {
+  //       hasMore.current = false;
+  //     }
+  //   } catch (error) {
+  //     console.warn(error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }, [page, loading, dispatch, posts]);
+  
+
+  // // ** Fetch Posts with Pagination **
   const handleFetchPost = useCallback(async () => {
-    if (!hasMore || loading) return;
+    if (!hasMore.current || loading) return;
 
     setLoading(true);
     try {
-      if (page === 0) dispatch(resetPosts()); // * Reset only on first page
-      const res = await fetchPost(page, limit);
+      if (posts.length>page*limit) return; // * memorize  
+      const res = await fetchPost(page, limit); 
 
       if (res?.result?.length) {
         dispatch(setPosts([...posts, ...res.result]));
-      } else {
-        setHasMore(false); //* if the result is empty it won't make again api call
+      } 
+      if(res?.result?.length<limit){  // * stop next unwanted api calls
+        hasMore.current = false
       }
     } catch (error) {
-      console.error("Error fetching posts:", error);
     } finally {
       setLoading(false);
     }
-  }, [page, hasMore, loading, dispatch, posts]);
+  }, [page, hasMore.current, loading, dispatch, posts]);
 
   //* Fetch posts when `page` changes 
   useEffect(() => {
@@ -48,21 +78,26 @@ export const useFeed = () => {
 
   // *Infinite Scroll Observer
   useEffect(() => {
-    if (loading || !hasMore) return;
-
+    if (loading || !hasMore.current || !lastPostRef.current) return; // Ensure ref exists
+  
+    observerRef.current?.disconnect(); // Cleanup old observer
     observerRef.current = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting) {
+        console.log("Observer fired", entries[0].isIntersecting);
+        if (entries[0].isIntersecting && hasMore.current) {
+          console.log("Fetching new posts...");
           setPage((prevPage) => prevPage + 1);
         }
       },
-      { threshold: 1.0 }
+      { root: null, rootMargin: "100px", threshold: 0.1 }
     );
-
-    if (lastPostRef.current) observerRef.current.observe(lastPostRef.current);
-
-    return () => observerRef.current?.disconnect();
-  }, [hasMore, loading]);
+  
+    console.log("Observing last post:", lastPostRef.current);
+    observerRef.current.observe(lastPostRef.current);
+  
+    return () => observerRef.current?.disconnect(); // Cleanup
+  }, [loading, posts, lastPostRef.current]);  
+  
 
   // * Add Comment Handler 
   const handleAddComment = async (postId: string, comment: string) => {
@@ -85,7 +120,7 @@ export const useFeed = () => {
         );
       }
     } catch (error) {
-      console.error(error);
+      console.warn(error);
     }
   };
 
@@ -99,7 +134,7 @@ export const useFeed = () => {
         dispatch(toggleLikeAction({ postId, userId }));
       }
     } catch (error) {
-      console.error(error);
+      console.warn(error);
     }
   };
 

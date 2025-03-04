@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, forwardRef } from "react";
+import { useState, forwardRef, useEffect } from "react";
 import {
   Card,
   CardHeader,
@@ -36,11 +36,22 @@ interface PostCardProps {
   onAddComment: (postId: string, comment: string) => void;
 }
 
-// Use forwardRef to accept ref from parent component
+// * Use forwardRef to accept ref from parent component
 const PostCard = forwardRef<HTMLDivElement, PostCardProps>(({ post, onLike, onAddComment }, ref) => {
   const [expanded, setExpanded] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [showCommentInput, setShowCommentInput] = useState(false);
+  const [userId,setUserId] = useState<string|null>("null")
+
+  
+  useEffect(()=>{
+      let user = localStorage.getItem('user')
+      if(user){
+        setUserId(JSON.parse(user)?._id)
+      }else{
+        setUserId(null)
+      }
+  })
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -53,8 +64,14 @@ const PostCard = forwardRef<HTMLDivElement, PostCardProps>(({ post, onLike, onAd
     }
   };
 
+  if(!userId) return
+
+  if(ref){
+    console.log('ref',ref,post)
+  }
+
   return (
-    <Card ref={ref} elevation={2}> {/* Attach ref here */}
+    <Card ref={ref} elevation={2}> 
       <CardHeader
         avatar={
           <Avatar src={post?.userId?.avatar} alt={post?.userId.username}>
@@ -85,10 +102,10 @@ const PostCard = forwardRef<HTMLDivElement, PostCardProps>(({ post, onLike, onAd
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <IconButton
             aria-label={(post?.like).includes(post?.userId?._id) ? "unlike" : "like"}
-            onClick={() => onLike(post._id)}
-            color={(post?.like).includes(post?.userId?._id) ? "primary" : "default"}
+            onClick={ async () =>onLike(post._id)}
+            color={(post?.like).includes(userId) ? "primary" : "default"}
           >
-            {(post?.like).includes(post?.userId?._id) ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+            {(post?.like).includes(userId) ? (<FavoriteIcon />) : <FavoriteBorderIcon />}
           </IconButton>
           <Typography variant="body2" color="text.secondary">
             {post.like.length}
@@ -135,30 +152,30 @@ const PostCard = forwardRef<HTMLDivElement, PostCardProps>(({ post, onLike, onAd
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <Divider />
         <List sx={{ py: 0 }}>
-          {post.comments.map((comment: IComment) => (
-            <ListItem key={comment._id} alignItems="flex-start" sx={{ py: 1 }}>
+          {post.comments.map((comment: IComment,ind:number) => (
+            <ListItem key={ind} alignItems="flex-start" sx={{ py: 1 }}>
               <ListItemAvatar>
                 <Avatar src={post.userId.avatar} alt={post.userId.username}>
                   {post.userId.username.charAt(0)}
                 </Avatar>
               </ListItemAvatar>
               <ListItemText
-                primary={
-                  <Typography variant="subtitle2" component="span">
-                    {post.userId.username}
+              primary={
+                <Typography variant="subtitle2" component="span">
+                  {post.userId.username}
+                </Typography>
+              }
+              secondary={
+                <>
+                  <Typography variant="body2" component="span" color="text.primary">
+                    {comment?.comment}
                   </Typography>
-                }
-                secondary={
-                  <>
-                    <Typography variant="body2" component="span" color="text.primary">
-                      {comment?.comment}
-                    </Typography>
-                    <Typography variant="caption" component="div" color="text.secondary" sx={{ mt: 0.5 }}>
-                      {comment?.createdAt ? formatDistanceToNow(new Date(comment?.createdAt), { addSuffix: true }) : ''}
-                    </Typography>
-                  </>
-                }
-              />
+                  <Typography variant="caption" component="span" color="text.secondary" sx={{ mt: 0.5 }}>
+                    {comment?.createdAt ? ` ${formatDistanceToNow(new Date(comment?.createdAt), { addSuffix: true }) }`: ''}
+                  </Typography>
+                </>
+              }
+            />
             </ListItem>
           ))}
         </List>

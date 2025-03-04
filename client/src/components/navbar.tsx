@@ -51,13 +51,13 @@ export default function Navbar() {
   };
   
 
-  const navigateToProfile = () => {
-    handleMenuClose()
+  const navigateToProfile = (e: React.MouseEvent<HTMLElement>) => {
+    e.preventDefault()
     router.push("/profile")
   }
 
   const navigateToHome = () => {
-    router.push("/")
+    router.push("/feed")
   }
 
   return (

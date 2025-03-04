@@ -16,13 +16,7 @@ export default function Feed() {
   const router = useRouter();
 
   const {posts,loading, lastPostRef,handleAddComment,handleLike,sortBy, setSortBy} = useFeed(); // Use the hook
-
-
-
-useEffect(()=>{
-
-},[])
-
+  
 
   return (
     <>
@@ -58,11 +52,11 @@ useEffect(()=>{
           {posts?.length
             ? posts.map((post, index) => (
                 <PostCard
-                  key={post._id}
+                  key={index}
                   post={post}
                   onLike={handleLike}
                   onAddComment={handleAddComment}
-                  ref={index === posts?.length - 1 ? lastPostRef : null} // Attach observer to last post
+                  ref={index === posts?.length - 1 ? lastPostRef : null} 
                 />
               ))
             : "No posts available"}

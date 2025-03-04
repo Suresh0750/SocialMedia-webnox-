@@ -36,7 +36,7 @@ const [imagePreview, setImagePreview] = useState<string | null>(null)
   const onSubmit = async (data: PostFormData) => {
     try {
       if (!selectedImage) {
-        console.error("No image selected")
+        console.warn("No image selected")
         return
       }
 

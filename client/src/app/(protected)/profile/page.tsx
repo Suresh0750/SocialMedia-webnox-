@@ -22,21 +22,24 @@ import {
 import { AccountCircle, AlternateEmail, CalendarMonth, Edit, Settings } from "@mui/icons-material"
 import { UserData } from "@/types/user"
 import {Oval}  from 'react-loader-spinner'
+import { useDispatch } from "react-redux"
+import { resetPosts } from "@/redux/slices/postSlice"
 
 
 
 export default function ProfilePage() {
   const theme = useTheme()
   const [activeTab, setActiveTab] = useState(0)
-const [userData,setUserData] = useState<UserData | null>(null)
+  const [userData,setUserData] = useState<UserData | null>(null)
+  const dispatch = useDispatch()
 
 useEffect(() => {
     const user = localStorage.getItem("user");
+    dispatch(resetPosts())
     if (user) {
       try {
         setUserData(JSON.parse(user));
       } catch (error) {
-        console.error("Error parsing user data:", error);
         setUserData(null);
       }
     }
